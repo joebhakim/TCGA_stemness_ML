@@ -15,6 +15,6 @@ dat <- pd.450.prim %>%
   select(-id.12) %>%
   filter(!(is.na(days_to_death) & is.na(days_to_last_followup))) %>%
   mutate(Y      = ifelse(!is.na(days_to_death), days_to_death, days_to_last_followup),
-         status = ifelse(!is.na(days_to_death), 1, 0)) %>%
+         censor.indicator = ifelse(!is.na(days_to_death), 1, 0)) %>%
   select(-days_to_death, -days_to_last_followup)
 save(dat, file="data/tcga_wrangled.rda", compress="xz")

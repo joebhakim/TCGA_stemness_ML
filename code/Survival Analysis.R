@@ -15,7 +15,7 @@ if(!require(dplyr)){
 library(survival)
 library(survminer)
 library(dplyr)
-load("tcga_wrangled.rda")
+load("data/tcga_wrangled.rda")
 
 #Rename EREG-mRNAsi
 colnames(dat)[colnames(dat)=="EREG-mRNAsi"] <- "EREG_mRNAsi"
