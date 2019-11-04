@@ -56,7 +56,9 @@ surv_pvalue(km.curve, data = dat, method = "survdiff")
 ##EREG-mRNAsi could be used instead of the two separate RNA and DNA stemness indices
 fit.coxph <- coxph(surv.object ~  mRNAsi + mDNAsi + gender + age + cancer.class, data = dat)
 summary(fit.coxph)
+#png(filename="figs/forest_plot.png", res=300)
 ggforest(fit.coxph, data = dat)
+#dev.off()
 
 #Some interpretations of coefficients. Keep in mind that stemness indices are multiplied by 100.
 

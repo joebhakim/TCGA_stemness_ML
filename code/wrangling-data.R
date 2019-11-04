@@ -15,7 +15,7 @@ dat <- pd.450.prim %>%
   select(-id.12) %>%
   filter(!(is.na(days_to_death) & is.na(days_to_last_followup))) %>%
   mutate(Y      = ifelse(!is.na(days_to_death), days_to_death, days_to_last_followup),
-         censor.indicator = ifelse(!is.na(days_to_death), 1, 0)) %>%
+         censor.indicator = ifelse(!is.na(days_to_death), 0, 1)) %>%
   mutate(cancer.class = case_when(
       cancer.type %in% c('LAML', 'DLBC', 'THYM') ~ 'hematologic_lymphatic',
       cancer.type %in% c('OV', 'UCEC', 'CESC', 'BRCA') ~ 'solid, gynecologic',
