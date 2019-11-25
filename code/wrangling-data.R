@@ -53,7 +53,7 @@ dat <- left_join(dat, tmp.data.pan, by = "TCGAlong.id") %>%
 
 # -- Last wrangled
 dat <- dat %>%
-  select(-TCGAlong.id, -cancer.type)
+  select(-TCGAlong.id, -cancer.type, -mRNAsi, -`EREG-mRNAsi`)
 
 # -- Creating the design matrix
 design <- model.matrix(~., dat)
