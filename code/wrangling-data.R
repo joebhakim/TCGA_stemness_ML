@@ -1,9 +1,9 @@
 # -- Libraries
 library(tidyverse)
-library(hexbin)
 
 # -- Loading data
 load("data/pd.450.prim_20170207.Rda")
+load("data/RNA_subset.Rda")
 load("data/data.pan.Rda")
 
 # -- Wrangling data
@@ -48,6 +48,30 @@ tmp.data.pan <- data.pan %>%
   spread(probe, methylation)
 
 # -- Joining data
-dat <- left_join(dat, tmp.data.pan, by = "TCGAlong.id")
+dat <- left_join(dat, tmp.data.pan, by = "TCGAlong.id") %>%
+  filter(Y > 0)
+
+# -- Last wrangled
+dat <- dat %>%
+  select(-TCGAlong.id, -cancer.type)
+
+# -- Creating the design matrix
+design <- model.matrix(~., dat)
+
+# # -- Methylation probe ids
+# genes <- RNA_subset[,1]
+# 
+# # -- Wrangling RNA subset data per cancer patient and joinning it to the dataset
+# tmp.rna <- RNA_subset[,-1] %>%
+#   as_tibble() %>%
+#   gather(TCGAlong.id, expression) %>%
+#   mutate(genes = rep(genes, 11069)) %>%
+#   mutate(TCGAlong.id = gsub("\\.", "-", TCGAlong.id)) %>%
+#   spread(genes, expression)
+# 
+# # -- Joining data
+# dat <- left_join(dat, tmp.rna, by = "TCGAlong.id") %>%
+#   filter(Y > 0)
 
 save(dat, file="data/tcga_wrangled.rda", compress="xz")
+save(design, file="data/design-matrix.rda", compress="xz")
