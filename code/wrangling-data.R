@@ -1,21 +1,24 @@
-# -- Libraries & Data
+# -- Libraries
 library(tidyverse)
 library(hexbin)
+
+# -- Loading data
 load("data/pd.450.prim_20170207.Rda")
+load("data/data.pan.Rda")
 
 # -- Wrangling data
 # Y : Time to event (outcome)
 # Status: Right censor indicator
 dat <- pd.450.prim %>%
   as_tibble() %>%
-  select(id.12, cancer.type, mRNAsi, mDNAsi, `EREG-mRNAsi`, gender, age_at_initial_pathologic_diagnosis) %>%
-  na.omit() %>% 
-  left_join(select(pd.450.prim, c(id.12, days_to_death, days_to_last_followup)), by="id.12") %>%
+  select(TCGAlong.id, cancer.type, mRNAsi, mDNAsi, `EREG-mRNAsi`, gender, age_at_initial_pathologic_diagnosis) %>%
+  na.omit() %>%
+  left_join(select(pd.450.prim, c(TCGAlong.id, days_to_death, days_to_last_followup)), by="TCGAlong.id") %>%
   rename(age = age_at_initial_pathologic_diagnosis) %>%
-  select(-id.12) %>%
   filter(!(is.na(days_to_death) & is.na(days_to_last_followup))) %>%
-  mutate(Y      = ifelse(!is.na(days_to_death), days_to_death, days_to_last_followup),
-         censor.indicator = ifelse(!is.na(days_to_death), 0, 1)) %>%
+  mutate(Y = ifelse(!is.na(days_to_death), days_to_death, days_to_last_followup),
+         censor.indicator = ifelse(!is.na(days_to_death), 0, 1),
+         TCGAlong.id = as.character(TCGAlong.id)) %>%
   mutate(cancer.class = case_when(
       cancer.type %in% c('LAML', 'DLBC', 'THYM') ~ 'hematologic_lymphatic',
       cancer.type %in% c('OV', 'UCEC', 'CESC', 'BRCA') ~ 'solid, gynecologic',
@@ -32,4 +35,19 @@ dat <- pd.450.prim %>%
     )
   ) %>%
   select(-days_to_death, -days_to_last_followup)
+
+
+# -- Methylation probe ids
+probes <- rownames(data.pan)
+
+# -- Wrangling methylation data per cancer patient and joinning it to the dataset
+tmp.data.pan <- data.pan %>%
+  as_tibble() %>%
+  gather(TCGAlong.id, methylation) %>%
+  mutate(probe = rep(probes, 9627)) %>%
+  spread(probe, methylation)
+
+# -- Joining data
+dat <- left_join(dat, tmp.data.pan, by = "TCGAlong.id")
+
 save(dat, file="data/tcga_wrangled.rda", compress="xz")
