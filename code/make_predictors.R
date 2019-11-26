@@ -4,7 +4,7 @@ library(randomForest)
 
 load('data/design-matrix.rda')
 design <- as_tibble(design)
-design <- filter(design, censor.indicator==0)
+#design <- filter(design, censor.indicator==0)
 
 set.seed(1) # Set Seed so that same sample can be reproduced in future also
 spec = c(train = .6, test = .2, validate = .2)
@@ -114,3 +114,12 @@ getRMSE(design_validate[,'Y'], RF_model_predictions_validate)
 plot(design_train[,'Y'], RF_model_predictions)
 plot(design_validate[,'Y'], RF_model_predictions_validate)
 
+
+
+
+
+
+# survival forests
+rfsrc_fit <- rfsrc(Surv(Y, censor.indicator) ~ ., data=design_train_df, ntree=100)
+y_hat <- predict(rfsrc_fit, data.frame(design_validate))
+getRMSE(y_hat, design_validate[,'Y'])
