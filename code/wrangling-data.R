@@ -5,14 +5,30 @@ library(tidyverse)
 load("data/pd.450.prim_20170207.Rda")
 load("data/RNA_subset.Rda")
 load("data/data.pan.Rda")
+load('data/pd.maf.450.Rda')
 
 # -- Wrangling data
 # Y : Time to event (outcome)
 # Status: Right censor indicator
+
+
+varnames_selected = c(
+  'TCGAlong.id',
+  'cancer.type',
+  'mRNAsi',
+  'mDNAsi',
+  'EREG-mRNAsi',
+  'gender',
+  'age_at_initial_pathologic_diagnosis',
+  'purity',
+  'ploidy',
+  'radiation_therapy'
+)
+
 dat <- pd.450.prim %>%
   as_tibble() %>%
-  select(TCGAlong.id, cancer.type, mRNAsi, mDNAsi, `EREG-mRNAsi`, gender, age_at_initial_pathologic_diagnosis) %>%
-  na.omit() %>%
+  select(varnames_selected) %>%
+  #na.omit() %>%
   left_join(select(pd.450.prim, c(TCGAlong.id, days_to_death, days_to_last_followup)), by="TCGAlong.id") %>%
   rename(age = age_at_initial_pathologic_diagnosis) %>%
   filter(!(is.na(days_to_death) & is.na(days_to_last_followup))) %>%
@@ -51,12 +67,33 @@ tmp.data.pan <- data.pan %>%
 dat <- left_join(dat, tmp.data.pan, by = "TCGAlong.id") %>%
   filter(Y > 0)
 
+#### Adding in raw mutation data (!), there are more columns i don't understand that im keeping for now
+maf_data <- pd.maf.450 %>%
+    select(-id.16, -id.12, -sample.type, -cancer.type, -germlayer, -Non.SC_310_DNAmeth, -Non.SC_62_DNAmeth, -SC_310_DNAmeth, -SC_Enh, -RNAss, )
+
+gene_names = colnames(maf_data)[-0:-10]
+
+#remove genes that are barely ever mutated
+countWT <- function(x){
+  return(sum(x == 'WT')/length(x))
+}
+
+mutated_enough <- summarize_all(maf_data[gene_names], countWT)
+thresh <- quantile(mutated_enough, 0.05)
+selected_genes <- Filter(function(x) x < thresh$`5%`, mutated_enough)
+maf_data_subset <- maf_data[c('TCGAlong.id',colnames(selected_genes))]
+
+
+dat_all <- left_join(dat, maf_data_subset, by = 'TCGAlong.id')
+
+
 # -- Last wrangled
-dat <- dat %>%
-  select(-TCGAlong.id, -cancer.type, -mRNAsi, -`EREG-mRNAsi`)
+dat_all <- dat_all %>%
+  select(-TCGAlong.id, -cancer.type, -mRNAsi, -`EREG-mRNAsi`, -purity, -ploidy, ) %>%
+  na.omit()
 
 # -- Creating the design matrix
-design <- model.matrix(~., dat)
+design <- model.matrix(~., dat_all)
 
 # # -- Methylation probe ids
 # genes <- RNA_subset[,1]

@@ -86,8 +86,13 @@ testset <- replace.NA(data.pan, type.info, by="median")
 #nonSC <- data.frame(predict(PCA, t(X.bk)))
 #cancer <- data.frame(predict(PCA, t(data.pan))[0:1000,])
 
+PCA <- prcomp(t(testset))
+cancer <- data.frame(PCA$x)
+nonSC <- data.frame(predict(PCA, t(X.bk)))
+SC <- data.frame(predict(PCA, t(X.tr)))
+
 mDNA_PCd = bind_rows(list(cancer=cancer, nonSC=nonSC, SC=SC), .id='source')
 
-
-ggplot(b, aes(PC1, PC2)) + geom_point() + geom_point(data=c, aes(PC1, PC2, color='red'))
+#ggplot(b, aes(PC1, PC2)) + geom_point() + geom_point(data=c, aes(PC1, PC2, color='red'))
 ggplot(data=mDNA_PCd, aes(PC1, PC2, color=source)) + geom_point()
+

@@ -43,7 +43,7 @@ split_data <- function(dat, proportions)
 }
 
 ##
-getPenLinReg <- function(dat, mDNAsi=T, raw=F, l1=1, l2=1, max.iter = 100, eps = 1e-05)
+getPenLinReg <- function(dat, mDNAsi=T, raw=F, mutations=T, l1=1, l2=1, max.iter = 100, eps = 1e-05)
 {
   ### dat      : should include the outcome and possible covariates
   ### mDNAsi   : flag which if true includes the mDNAsi biomarker as a covariate in the design matrix
@@ -73,6 +73,13 @@ getPenLinReg <- function(dat, mDNAsi=T, raw=F, l1=1, l2=1, max.iter = 100, eps =
     datReduced  <- cbind(datReduced, dat[,rawColNames])
   }
   
+  # -- If mutaions = T, then add to design matrix
+  if(mutations)
+  {
+    first_gene_ind <- match('A2M',colnames(dat_all))
+    geneColNames <- colnames(dat)[-0:-(first_gene_ind - 1)] 
+    datReduced <- cbind(datReduced, dat[, geneColNames])
+  }
   #sapply(dat, class)
   #dat <- model.matrix( ~ ., dat)
   #dat <- as.matrix(dat)
@@ -99,7 +106,7 @@ getPredLinReg <- function(model, dat)
 }
 
 ##
-getRFModel <- function(dat, mDNAsi=T, raw=F, ntree = 15)
+getRFModel <- function(dat, mDNAsi=T, raw=F, mutations=T, ntree = 150)
 {
   ### dat    : should include the outcome and possible covariates
   ### mDNAsi : flag which if true includes the mDNAsi biomarker as a covariate in the design matrix
@@ -124,6 +131,13 @@ getRFModel <- function(dat, mDNAsi=T, raw=F, ntree = 15)
     datReduced  <- cbind(datReduced, dat[,rawColNames])
   }
   
+  # -- If mutaions = T, then add to design matrix
+  if(mutations)
+  {
+    first_gene_ind <- match('A2M',colnames(dat_all))
+    geneColNames <- colnames(dat)[-0:-(first_gene_ind - 1)] 
+    datReduced <- cbind(datReduced, dat[, geneColNames])
+  }
   # -- Fitting RF model
   rfFit <- randomForest(Y~., data=data.frame(datReduced), ntree=ntree)
   
@@ -239,3 +253,5 @@ assess_EN <- function(l1s, l2s)
 # y_hat <- predict(rfsrc_fit, data.frame(design_validate))
 # getRMSE(y_hat, design_validate[,'Y'])
 # ################################### -- SURVIVAL FOREST -- ###################################
+
+
