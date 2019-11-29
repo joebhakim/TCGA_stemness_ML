@@ -2,7 +2,7 @@
 library(randomForest)
 library(tidyverse)
 library(gelnet)
-
+library(randomForestSRC)
 
 ##
 split_data <- function(dat, proportions)
@@ -112,7 +112,7 @@ getRFModel <- function(dat, mDNAsi=T, raw=F, mutations=T, ntree = 150)
   ### mDNAsi : flag which if true includes the mDNAsi biomarker as a covariate in the design matrix
   ### raw    : flag which if true includes RNA expression values as covariates in the design matrix
   ### ntree  : number of trees to be used in RF
-
+  
   # -- Extract design matrix
   cancerCols <- colnames(dat)[grepl("cancer", colnames(dat))]
   datReduced <- dat[,c("genderMALE", "age",'Y', cancerCols)]
@@ -151,6 +151,54 @@ getPredRFModel <- function(model, dat)
   ### dat   : data to make predictions 
   predict(model, newdata=data.frame(dat)) 
 }
+
+
+get_RF_survival_model <- function(dat, mDNAsi=T, raw=T, mutations=T, ntree = 50)
+{
+  ### dat    : should include the outcome and possible covariates
+  ### mDNAsi : flag which if true includes the mDNAsi biomarker as a covariate in the design matrix
+  ### raw    : flag which if true includes RNA expression values as covariates in the design matrix
+  ### ntree  : number of trees to be used in RF
+  
+  # -- Extract design matrix
+  cancerCols <- colnames(dat)[grepl("cancer", colnames(dat))]
+  datReduced <- dat[,c("genderMALE", "age",'Y', 'censor.indicator', cancerCols)]
+  
+  # -- If mDNAsi = T then add to design matrix
+  if(mDNAsi)
+  {
+    datReduced  <- cbind(datReduced , dat[,"mDNAsi"])
+    colnames(datReduced)[length(colnames(datReduced))] <- "mDNAsi"
+  }
+  
+  # -- If raw = T then add to design matrix
+  if(raw)
+  {
+    rawColNames <- colnames(dat)[grepl("cg", colnames(dat))]
+    datReduced  <- cbind(datReduced, dat[,rawColNames])
+  }
+  
+  # -- If mutaions = T, then add to design matrix
+  if(mutations)
+  {
+    first_gene_ind <- match('A2M',colnames(dat_all))
+    geneColNames <- colnames(dat)[-0:-(first_gene_ind - 1)] 
+    datReduced <- cbind(datReduced, dat[, geneColNames])
+  }
+  # -- Fitting RF Surival model
+  rfsrc_fit <- rfsrc(Surv(Y, censor.indicator) ~ ., data=data.frame(datReduced), ntree=ntree)
+  
+  return(list('rfsrv_fit'=rfsrc_fit, 'chosenCols'=colnames(datReduced)))
+}
+
+##
+get_pred_RF_survival_model <- function(model, dat)
+{
+  ### model : Random forest model object
+  ### dat   : data to make predictions 
+  predict(model, newdata=data.frame(dat))
+}
+
 
 ##
 getRMSE <- function(observed, predicted)
