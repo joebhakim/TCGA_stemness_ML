@@ -174,11 +174,11 @@ assess_RF <- function(number_trees)
   {
     cat("Currently at iter =",i, "out of", nrow(resMat), "\n")
     #  -- Fiting RF model
-    tmp_model          <- getRFModel(dat=train, ntree=resMat[i,1])$rfFit
+    tmp_model          <- getRFModel(dat=train, ntree=resMat[i,1])
     
     # -- Predictions in the train/validate set
-    tmp_preds_train    <- getPredRFModel(tmp_model, dat=train)
-    tmp_preds_validate <- getPredRFModel(tmp_model, dat=validate)
+    tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train[, tmp_model$chosenCols])
+    tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate[, tmp_model$chosenCols])
     
     # -- MSE in the train/validate set
     resMat[i,2] <- getRMSE(train[,"Y"], tmp_preds_train)
