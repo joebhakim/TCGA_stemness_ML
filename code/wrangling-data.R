@@ -82,10 +82,9 @@ mutated_enough <- summarize_all(maf_data[gene_names], countWT)
 thresh <- quantile(mutated_enough, 0.1)
 selected_genes <- Filter(function(x) x < thresh$`10%`, mutated_enough)
 maf_data_subset <- maf_data[c('TCGAlong.id',colnames(selected_genes))]
+colnames(maf_data_subset) <- paste0("gene",colnames(maf_data_subset))
 
-
-dat_all <- left_join(dat, maf_data_subset, by = 'TCGAlong.id')
-
+dat_all <- left_join(dat, maf_data_subset, by = c('TCGAlong.id'='geneTCGAlong.id'))
 
 # -- Last wrangled
 dat_all <- dat_all %>%
@@ -94,6 +93,20 @@ dat_all <- dat_all %>%
 
 # -- Creating the design matrix
 design <- model.matrix(~., dat_all)
+
+design <- design %>%
+  as_tibble() %>%
+  mutate(genderMALE = factor(genderMALE),
+         censor.indicator = factor(censor.indicator)) %>%
+  mutate_at(vars(matches("cancer")), as.factor) %>%
+  mutate_at(vars(matches("gene")), as.factor) %>%
+  mutate_if(is.numeric, scale) %>%
+  mutate(`(Intercept)`=1) %>%
+  mutate_all(as.character) %>%
+  mutate_all(as.numeric)
+
+
+
 
 # # -- Methylation probe ids
 # genes <- RNA_subset[,1]
