@@ -13,7 +13,7 @@ set_proportions <- c(train = 0.6, validate = 0.2, test = 0.2)
 
 # -- Splitting the data
 design_nocensored <- filter(design, censor.indicator == 0)
-dat_list <- split_data(design, set_proportions)
+dat_list <- split_data(design_nocensored, set_proportions)
 #dat_list <- split_data(design_nocensored, set_proportions)
 train    <- dat_list$train
 validate <- dat_list$validate
@@ -34,18 +34,19 @@ RF_survival_preds <- get_pred_RF_survival_model(RF_survival_model, validate[,cho
 # -- Computing MSE
 cat("MSE for EN:",getRMSE(validate[,'Y'], lin_preds),"\n")
 cat("MSE for RF:",getRMSE(validate[,'Y'], RF_preds))
-cat('MSE for RF survival', getRMSE(validate[,'Y'], RF_survival_preds$predicted))
+cat('MSE for RF survival', getRMSE(validate[,'Y'], RF_survival_preds))
 
 # -- Multiple values for RF hyperparameters
-number_tress    <- seq(0, 150, by = 50)
-number_tress[1] <- 1
+number_tress    <- seq(50, 250, by = 50)
+#number_tress[1] <- 1
 
 # -- Multiple values for EN hyperparameters
-l1s <- seq(0, 5, by=0.10)
-l2s <- seq(0, 5, by=0.10)
+l1s <- seq(0, 5, by=1)
+l2s <- seq(0, 2, by=.2)
 
 # -- Iterating over mutiple values of ntree
 resRF <- assess_RF(number_tress)
+resRFSurvival <- assess_RF(number_tress)
 resEN <- assess_EN(l1s, l2s)
 
 resRF$viz

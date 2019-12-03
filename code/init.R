@@ -153,7 +153,7 @@ getPredRFModel <- function(model, dat)
 }
 
 
-get_RF_survival_model <- function(dat, mDNAsi=T, raw=T, mutations=T, ntree = 50)
+get_RF_survival_model <- function(dat, mDNAsi=T, raw=F, mutations=T, ntree = 150)
 {
   ### dat    : should include the outcome and possible covariates
   ### mDNAsi : flag which if true includes the mDNAsi biomarker as a covariate in the design matrix
@@ -196,7 +196,7 @@ get_pred_RF_survival_model <- function(model, dat)
 {
   ### model : Random forest model object
   ### dat   : data to make predictions 
-  predict(model, newdata=data.frame(dat))
+  predict(model, newdata=data.frame(dat))$predicted
 }
 
 
@@ -225,6 +225,49 @@ assess_RF <- function(number_trees)
     # -- Predictions in the train/validate set
     tmp_preds_train    <- getPredRFModel(tmp_model, dat=train)
     tmp_preds_validate <- getPredRFModel(tmp_model, dat=validate)
+    
+    # -- MSE in the train/validate set
+    resMat[i,2] <- getRMSE(train[,"Y"], tmp_preds_train)
+    resMat[i,3] <- getRMSE(validate[,"Y"], tmp_preds_validate)
+  }
+  
+  
+  p <- resMat %>%
+    as_tibble() %>%
+    gather(set, mse, -trees) %>%
+    ggplot(aes(trees, mse, color=set)) +
+    geom_line(size=0.80) + 
+    geom_point(size=3, alpha=0.90) +
+    geom_point(size=3, pch=1, color="black") +
+    ylab("MSE") +
+    xlab("# of trees") +
+    scale_color_manual(name="",
+                       values = c("black", "red3"),
+                       labels = c("Train", "Validate")) +
+    theme_classic() +
+    theme(axis.title = element_text(face="bold"),
+          axis.text  = element_text(face="bold"),
+          legend.text = element_text(face="bold"),
+          legend.position = "bottom")
+  
+  return(list("resMat" = resMat, "viz" = p))
+}
+
+assess_RF_survival <- function(number_trees){
+  # -- Matrix to save results
+  resMat           <- matrix(NA, nrow=length(number_tress), ncol=3)
+  colnames(resMat) <- c("trees", "train.mse", "validate.mse")
+  resMat[,1]       <- number_tress
+  
+  for(i in 1:length(number_tress))
+  {
+    cat("Currently at iter =",i, "out of", nrow(resMat), "\n")
+    #  -- Fiting RF model
+    tmp_model          <- get_RF_survival_model(dat=train, ntree=resMat[i,1])
+    
+    # -- Predictions in the train/validate set
+    tmp_preds_train    <- get_pred_RF_survival_model(tmp_model, dat=train)
+    tmp_preds_validate <- get_pred_RF_survival_model(tmp_model, dat=validate)
     
     # -- MSE in the train/validate set
     resMat[i,2] <- getRMSE(train[,"Y"], tmp_preds_train)

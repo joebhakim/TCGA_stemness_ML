@@ -79,8 +79,8 @@ countWT <- function(x){
 }
 
 mutated_enough <- summarize_all(maf_data[gene_names], countWT)
-thresh <- quantile(mutated_enough, 0.05)
-selected_genes <- Filter(function(x) x < thresh$`5%`, mutated_enough)
+thresh <- quantile(mutated_enough, 0.1)
+selected_genes <- filter(function(x) x < thresh$`10%`, mutated_enough)
 maf_data_subset <- maf_data[c('TCGAlong.id',colnames(selected_genes))]
 
 
@@ -112,3 +112,4 @@ design <- model.matrix(~., dat_all)
 
 save(dat, file="data/tcga_wrangled.rda", compress="xz")
 save(design, file="data/design-matrix.rda", compress="xz")
+
