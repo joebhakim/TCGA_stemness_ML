@@ -80,7 +80,7 @@ countWT <- function(x){
 
 mutated_enough <- summarize_all(maf_data[gene_names], countWT)
 thresh <- quantile(mutated_enough, 0.1)
-selected_genes <- filter(function(x) x < thresh$`10%`, mutated_enough)
+selected_genes <- Filter(function(x) x < thresh$`10%`, mutated_enough)
 maf_data_subset <- maf_data[c('TCGAlong.id',colnames(selected_genes))]
 
 
