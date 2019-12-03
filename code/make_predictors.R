@@ -48,3 +48,6 @@ resEN <- assess_EN(l1s, l2s)
 resRF$viz
 resEN$viz
 
+
+resRF$resMat
+resEN$resMat

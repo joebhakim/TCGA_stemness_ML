@@ -149,7 +149,8 @@ getPredRFModel <- function(model, dat)
 {
   ### model : Random forest model object
   ### dat   : data to make predictions 
-  predict(model, newdata=data.frame(dat)) 
+  # predict(model, newdata=data.frame(dat)) 
+  predict(model, newdata=dat) 
 }
 
 ##
@@ -230,7 +231,7 @@ assess_EN <- function(l1s, l2s)
   
   middle <- (max(c(resMat[,3], resMat[,4])) + min(c(resMat[,3], resMat[,4])))/2
   
-  resMat %>%
+  p <- resMat %>%
     as_tibble() %>%
     gather(set, mse, -l1, -l2) %>%
     mutate(set = ifelse(set=="train.mse", "Train", "Validate")) %>%
