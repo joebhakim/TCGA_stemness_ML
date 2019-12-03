@@ -134,7 +134,7 @@ getRFModel <- function(dat, mDNAsi=T, raw=T, mutations=T, ntree = 30, nodesize =
   # -- If mutaions = T, then add to design matrix
   if(mutations)
   {
-    first_gene_ind <- match('A2M',colnames(dat_all))
+    first_gene_ind <- match('geneA2M',colnames(dat_all))
     geneColNames <- colnames(dat)[-0:-(first_gene_ind - 1)] 
     datReduced <- cbind(datReduced, dat[, geneColNames])
   }

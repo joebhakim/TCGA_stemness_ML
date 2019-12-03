@@ -20,7 +20,7 @@ test     <- dat_list$test
 
 # -- Fitting EN and RF models
 lin_model <- getPenLinReg(train)
-#RF_model  <- getRFModel(train)
+# RF_model  <- getRFModel(train)
 RF_model_AND_chosenCols <- getRFModel(train)
 RF_model <- RF_model_AND_chosenCols$rfFit
 chosenCols <- RF_model_AND_chosenCols$chosenCols
