@@ -152,8 +152,6 @@ getPredRFModel <- function(model, dat)
   predict(model, newdata=data.frame(dat)) 
 }
 
-
-
 ##
 getRMSE <- function(observed, predicted)
 {
@@ -230,15 +228,19 @@ assess_EN <- function(l1s, l2s)
     resMat[i,4] <- getRMSE(validate[,"Y"], tmp_preds_validate)
   }
   
-  p <- resMat %>%
+  middle <- (max(c(resMat[,3], resMat[,4])) + min(c(resMat[,3], resMat[,4])))/2
+  
+  resMat %>%
     as_tibble() %>%
     gather(set, mse, -l1, -l2) %>%
     mutate(set = ifelse(set=="train.mse", "Train", "Validate")) %>%
+    group_by(set) %>%
+    mutate(mse.scaled = scale(mse)) %>%
+    ungroup() %>%
     ggplot(aes(l1, l2, fill=mse)) +
     geom_tile(color="black",size=0.50) +
-    scale_fill_viridis_c(name="MSE",
-                         option="cividis",
-                         direction = -1) +
+    scale_fill_gradient2(name="MSE",
+                         low="red", high="black", mid="white", midpoint = middle) +
     facet_wrap(~set) +
     theme_bw() +
     theme(axis.title = element_text(face="bold"),
