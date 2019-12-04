@@ -76,9 +76,8 @@ getPenLinReg <- function(dat, mDNAsi=T, raw=T, mutations=T, l1=1, l2=1, max.iter
   # -- If mutaions = T, then add to design matrix
   if(mutations)
   {
-    first_gene_ind <- match('geneA2M',colnames(dat_all))
-    geneColNames <- colnames(dat)[-0:-(first_gene_ind - 1)] 
-    datReduced <- cbind(datReduced, dat[, geneColNames])
+    geneColNames   <- colnames(dat)[grepl("gene", colnames(dat))]
+    datReduced     <- cbind(datReduced, dat[, geneColNames])
   }
   #sapply(dat, class)
   #dat <- model.matrix( ~ ., dat)
