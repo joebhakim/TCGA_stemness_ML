@@ -17,9 +17,11 @@ dat_list          <- split_data(design_nocensored, set_proportions)
 train             <- dat_list$train
 validate          <- dat_list$validate
 test              <- dat_list$test
+names             <- colnames(train)
+colnames(validate) <- names
 
 # -- Fitting EN and RF models
-lin_model <- getPenLinReg(train, raw=F, mutations=F)
+lin_model <- getPenLinReg(train, mDNAsi=T, raw=F, mutations=F)
 RF_model_AND_chosenCols <- getRFModel(train, raw=F, mutations=F)
 RF_model                <- RF_model_AND_chosenCols$rfFit      # -- Why are we doing this?
 chosenCols              <- RF_model_AND_chosenCols$chosenCols # -- Why are we doing this?
@@ -48,17 +50,32 @@ cat("MSE for RF:",getRMSE(validate[,'Y'], RF_preds))
 number_trees    <- seq(50, 250, by = 50)
 #number_tress[1] <- 1
 
-# -- Multiple values for EN hyperparameters
-l1s <- seq(0, 5, by=1)
-l2s <- seq(0, 0.1, by=.02)
-
 # -- Iterating over mutiple values of ntree
-resRF <- assess_RF(number_tress)
-resEN <- assess_EN(l1s, l2s)
-
+resRF <- assess_RF(number_trees, mDNAsi=T, raw=F, mutations=F) # -- When mutations=T it gives problems
 resRF$viz
+
+
+# -- Multiple values for EN hyperparameters
+l1s <- seq(0, 6, by=0.1)
+l2s <- seq(0, 6, by=0.1)
+
+# -- Iterating over l1s and l2s
+resEN <- assess_EN(l1s, l2s, mDNAsi=T, raw=T, mutations=T)
 resEN$viz
 
+resEN$resMat %>%
+  as_tibble() %>%
+  # filter(l1==5)
+  filter(validate.mse == min(validate.mse))
+  # filter(train.mse == min(train.mse))
+# T,T,T: 4.3   0.9      845.         911
+# T,T,F: 5.8   0.7      874.         914.
+# T,F,F: 1     0      945.         905.
 
-resRF$resMat
-resEN$resMat
+
+
+
+
+
+
+

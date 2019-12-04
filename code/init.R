@@ -168,36 +168,51 @@ assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T)
   resMat           <- matrix(NA, nrow=length(number_trees), ncol=3)
   colnames(resMat) <- c("trees", "train.mse", "validate.mse")
   resMat[,1]       <- number_trees
+  names            <- colnames(train)
 
   for(i in 1:length(number_trees))
   {
+    ##
+    colnames(train)    <- names
+    colnames(validate) <- names
+    
+    ##
     cat("Currently at iter =",i, "out of", nrow(resMat), "\n")
+
     #  -- Fiting RF model
     tmp_model          <- getRFModel(dat=train, ntree=resMat[i,1], mDNAsi=mDNAsi, raw=raw, mutations=mutations)
-    # colnames(train)[8]  <- "cancer.classdevelopmental.GI"
-    # colnames(train)[9]  <- "cancer.classhead.and.neck"
-    # colnames(train)[12] <- "cancer.classneural.crest"
-    # colnames(train)[13] <- "cancer.classsoft.tissue"
-    # colnames(train)[14] <- "cancer.classsolic..urologic"
-    # colnames(train)[15] <- "cancer.classsolid..core.GI"
-    # colnames(train)[16] <- "cancer.classsolid..endocrine"
-    # colnames(train)[17] <- "cancer.classsolid..gynecologic"
-    # 
-    # colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
-    # colnames(validate)[9]  <- "cancer.classhead.and.neck"
-    # colnames(validate)[12] <- "cancer.classneural.crest"
-    # colnames(validate)[13] <- "cancer.classsoft.tissue"
-    # colnames(validate)[14] <- "cancer.classsolic..urologic"
-    # colnames(validate)[15] <- "cancer.classsolid..core.GI"
-    # colnames(validate)[16] <- "cancer.classsolid..endocrine"
-    # colnames(validate)[17] <- "cancer.classsolid..gynecologic"
+    colnames(train)[8]  <- "cancer.classdevelopmental.GI"
+    colnames(train)[9]  <- "cancer.classhead.and.neck"
+    colnames(train)[12] <- "cancer.classneural.crest"
+    colnames(train)[13] <- "cancer.classsoft.tissue"
+    colnames(train)[14] <- "cancer.classsolic..urologic"
+    colnames(train)[15] <- "cancer.classsolid..core.GI"
+    colnames(train)[16] <- "cancer.classsolid..endocrine"
+    colnames(train)[17] <- "cancer.classsolid..gynecologic"
+    
+    colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
+    colnames(validate)[9]  <- "cancer.classhead.and.neck"
+    colnames(validate)[12] <- "cancer.classneural.crest"
+    colnames(validate)[13] <- "cancer.classsoft.tissue"
+    colnames(validate)[14] <- "cancer.classsolic..urologic"
+    colnames(validate)[15] <- "cancer.classsolid..core.GI"
+    colnames(validate)[16] <- "cancer.classsolid..endocrine"
+    colnames(validate)[17] <- "cancer.classsolid..gynecologic"
     
     # colnames(train)[227]    <- "cg26395331.1"
     # colnames(validate)[227] <- "cg26395331.1"
     
-    # -- Predictions in the train/validate set
-    tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train[, tmp_model$chosenCols])
-    tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate[, tmp_model$chosenCols])
+    # sum(colnames(train) %in% rownames(tmp_model$rfFit$importance))
+    # ncol(train)
+    # ncol(validate)
+    
+    which(colnames(train) == "cg26395331")
+    
+    # # -- Predictions in the train/validate set
+    # tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train[, tmp_model$chosenCols])
+    # tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate[, tmp_model$chosenCols])
+    tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train)
+    tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate)
     
     # -- MSE in the train/validate set
     resMat[i,2] <- getRMSE(train[,"Y"], tmp_preds_train)
