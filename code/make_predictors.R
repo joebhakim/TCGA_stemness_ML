@@ -21,8 +21,8 @@ names             <- colnames(train)
 colnames(validate) <- names
 
 # -- Fitting EN and RF models
-lin_model <- getPenLinReg(train, mDNAsi=T, raw=T, mutations=T)
-RF_model_AND_chosenCols <- getRFModel(train, raw=T, mutations=T)
+lin_model <- getPenLinReg(train, mDNAsi=T, raw=F, mutations=F)
+RF_model_AND_chosenCols <- getRFModel(train, raw=F, mutations=F)
 RF_model                <- RF_model_AND_chosenCols$rfFit      # -- Why are we doing this?
 chosenCols              <- RF_model_AND_chosenCols$chosenCols # -- Why are we doing this?
 
@@ -44,7 +44,6 @@ number_trees    <- seq(50, 250, by = 50)
 # -- Iterating over mutiple values of ntree
 resRF <- assess_RF(number_trees, mDNAsi=T, raw=F, mutations=F) # -- When mutations=T it gives problems
 resRF$viz
-
 
 # -- Multiple values for EN hyperparameters
 l1s <- seq(0, 6, by=0.1)

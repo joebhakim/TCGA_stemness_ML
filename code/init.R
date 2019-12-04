@@ -160,7 +160,7 @@ getRMSE <- function(observed, predicted)
 }
 
 ##
-assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T)
+assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T, verbose=T)
 {
   # -- Matrix to save results
   resMat           <- matrix(NA, nrow=length(number_trees), ncol=3)
@@ -175,27 +175,27 @@ assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T)
     colnames(validate) <- names
     
     ##
-    cat("Currently at iter =",i, "out of", nrow(resMat), "\n")
+    if(verbose){cat("Currently at iter =",i, "out of", nrow(resMat), "\n")}
 
     #  -- Fiting RF model
     tmp_model          <- getRFModel(dat=train, ntree=resMat[i,1], mDNAsi=mDNAsi, raw=raw, mutations=mutations)
-    colnames(train)[8]  <- "cancer.classdevelopmental.GI"
-    colnames(train)[9]  <- "cancer.classhead.and.neck"
-    colnames(train)[12] <- "cancer.classneural.crest"
-    colnames(train)[13] <- "cancer.classsoft.tissue"
-    colnames(train)[14] <- "cancer.classsolic..urologic"
-    colnames(train)[15] <- "cancer.classsolid..core.GI"
-    colnames(train)[16] <- "cancer.classsolid..endocrine"
-    colnames(train)[17] <- "cancer.classsolid..gynecologic"
-    
-    colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
-    colnames(validate)[9]  <- "cancer.classhead.and.neck"
-    colnames(validate)[12] <- "cancer.classneural.crest"
-    colnames(validate)[13] <- "cancer.classsoft.tissue"
-    colnames(validate)[14] <- "cancer.classsolic..urologic"
-    colnames(validate)[15] <- "cancer.classsolid..core.GI"
-    colnames(validate)[16] <- "cancer.classsolid..endocrine"
-    colnames(validate)[17] <- "cancer.classsolid..gynecologic"
+    # colnames(train)[8]  <- "cancer.classdevelopmental.GI"
+    # colnames(train)[9]  <- "cancer.classhead.and.neck"
+    # colnames(train)[12] <- "cancer.classneural.crest"
+    # colnames(train)[13] <- "cancer.classsoft.tissue"
+    # colnames(train)[14] <- "cancer.classsolic..urologic"
+    # colnames(train)[15] <- "cancer.classsolid..core.GI"
+    # colnames(train)[16] <- "cancer.classsolid..endocrine"
+    # colnames(train)[17] <- "cancer.classsolid..gynecologic"
+    # 
+    # colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
+    # colnames(validate)[9]  <- "cancer.classhead.and.neck"
+    # colnames(validate)[12] <- "cancer.classneural.crest"
+    # colnames(validate)[13] <- "cancer.classsoft.tissue"
+    # colnames(validate)[14] <- "cancer.classsolic..urologic"
+    # colnames(validate)[15] <- "cancer.classsolid..core.GI"
+    # colnames(validate)[16] <- "cancer.classsolid..endocrine"
+    # colnames(validate)[17] <- "cancer.classsolid..gynecologic"
     
     # colnames(train)[227]    <- "cg26395331.1"
     # colnames(validate)[227] <- "cg26395331.1"
@@ -240,7 +240,7 @@ assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T)
 }
 
 ##
-assess_EN <- function(l1s, l2s, mDNAsi=T, raw=T, mutations=T)
+assess_EN <- function(l1s, l2s, mDNAsi=T, raw=T, mutations=T, verbose=T)
 {
   # -- Matrix to save results
   resMat           <- cbind(as.matrix(expand.grid(l1s,l2s)), NA, NA)
@@ -249,8 +249,8 @@ assess_EN <- function(l1s, l2s, mDNAsi=T, raw=T, mutations=T)
   
   for(i in 1:nrow(resMat))
   {
-    cat("Currently at iter =",i, "out of", nrow(resMat), "\n")
-    
+    if(verbose){cat("Currently at iter =",i, "out of", nrow(resMat), "\n")}
+  
     #  -- Fiting EN model
     tmp_model <- getPenLinReg(dat=train, l1=resMat[i,1], l2=resMat[i,2], mDNAsi=mDNAsi, raw=raw, mutations=mutations)
     
