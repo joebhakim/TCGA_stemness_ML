@@ -37,16 +37,16 @@ dat <- pd.450.prim %>%
          TCGAlong.id = as.character(TCGAlong.id)) %>%
   mutate(cancer.class = case_when(
       cancer.type %in% c('LAML', 'DLBC', 'THYM') ~ 'hematologic_lymphatic',
-      cancer.type %in% c('OV', 'UCEC', 'CESC', 'BRCA') ~ 'solid, gynecologic',
-      cancer.type %in% c('BLCA', 'PRAD', 'TGCT', 'KIRC', 'KICH', 'KIRP') ~ 'solic, urologic',
-      cancer.type %in% c('THCA', 'ACC') ~ 'solid, endocrine',
-      cancer.type %in% c('ESCA', 'STAD', 'COAD', 'READ') ~ 'solid, core GI',
-      cancer.type %in% c('LIHC', 'PAAD', 'CHOL') ~ 'developmental GI',
-      cancer.type %in% c('HNSC') ~ 'head and neck',
+      cancer.type %in% c('OV', 'UCEC', 'CESC', 'BRCA') ~ 'solid_gynecologic',
+      cancer.type %in% c('BLCA', 'PRAD', 'TGCT', 'KIRC', 'KICH', 'KIRP') ~ 'solic_urologic',
+      cancer.type %in% c('THCA', 'ACC') ~ 'solid_endocrine',
+      cancer.type %in% c('ESCA', 'STAD', 'COAD', 'READ') ~ 'solid_core_GI',
+      cancer.type %in% c('LIHC', 'PAAD', 'CHOL') ~ 'developmental_GI',
+      cancer.type %in% c('HNSC') ~ 'head_and_neck',
       cancer.type %in% c('LUAD', 'LUSC', 'MESO') ~ 'thoracic',
-      cancer.type %in% c('GBM', 'LGG') ~ 'Central nervous system',
-      cancer.type %in% c('SARC', 'UCS') ~ 'soft tissue',
-      cancer.type %in% c('PCPG') ~ 'neural crest',
+      cancer.type %in% c('GBM', 'LGG') ~ 'central_nervous_system',
+      cancer.type %in% c('SARC', 'UCS') ~ 'soft_tissue',
+      cancer.type %in% c('PCPG') ~ 'neural_crest',
       cancer.type %in% c('SKCM', 'UVM') ~ 'melanocytic'
     )
   ) %>%
@@ -86,6 +86,11 @@ colnames(maf_data_subset) <- paste0("gene",colnames(maf_data_subset))
 
 
 dat_all <- left_join(dat, maf_data_subset, by = c('TCGAlong.id'='geneTCGAlong.id'))
+dat_all <- rename(dat_all, 'geneBIVM_ERCC5' = `geneBIVM-ERCC5`)
+dat_all <- rename(dat_all, 'geneLY75_CD302' = `geneLY75-CD302`)
+dat_all <- rename(dat_all, 'genePALM2_AKAP2' = `genePALM2-AKAP2`)
+dat_all <- rename(dat_all, 'geneSTON1_GTF2A1L' = `geneSTON1-GTF2A1L`)
+dat_all <- rename(dat_all, 'geneRP11_1055B8_7' = `geneRP11-1055B8.7`)
 
 # -- Last wrangled
 dat_all <- dat_all %>%

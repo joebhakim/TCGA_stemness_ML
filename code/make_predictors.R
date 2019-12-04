@@ -21,8 +21,8 @@ names             <- colnames(train)
 colnames(validate) <- names
 
 # -- Fitting EN and RF models
-lin_model <- getPenLinReg(train, mDNAsi=T, raw=F, mutations=F)
-RF_model_AND_chosenCols <- getRFModel(train, raw=F, mutations=F)
+lin_model <- getPenLinReg(train, mDNAsi=T, raw=T, mutations=T)
+RF_model_AND_chosenCols <- getRFModel(train, raw=T, mutations=T)
 RF_model                <- RF_model_AND_chosenCols$rfFit      # -- Why are we doing this?
 chosenCols              <- RF_model_AND_chosenCols$chosenCols # -- Why are we doing this?
 
