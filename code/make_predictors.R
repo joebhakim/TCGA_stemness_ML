@@ -13,28 +13,39 @@ set_proportions <- c(train = 0.6, validate = 0.2, test = 0.2)
 
 # -- Splitting the data
 design_nocensored <- filter(design, censor.indicator == 0)
-dat_list <- split_data(design_nocensored, set_proportions)
-train    <- dat_list$train
-validate <- dat_list$validate
-test     <- dat_list$test
+dat_list          <- split_data(design_nocensored, set_proportions)
+train             <- dat_list$train
+validate          <- dat_list$validate
+test              <- dat_list$test
 
 # -- Fitting EN and RF models
-lin_model <- getPenLinReg(train)
-# RF_model  <- getRFModel(train)
-RF_model_AND_chosenCols <- getRFModel(train)
-RF_model <- RF_model_AND_chosenCols$rfFit
-chosenCols <- RF_model_AND_chosenCols$chosenCols
+lin_model <- getPenLinReg(train, raw=F, mutations=F)
+RF_model_AND_chosenCols <- getRFModel(train, raw=F, mutations=F)
+RF_model                <- RF_model_AND_chosenCols$rfFit      # -- Why are we doing this?
+chosenCols              <- RF_model_AND_chosenCols$chosenCols # -- Why are we doing this?
 
 # -- Computing predictions in the validation set
 lin_preds <- getPredLinReg(lin_model, validate)
-RF_preds  <- getPredRFModel(RF_model, validate[,chosenCols])
+
+# -- Need to do this for some stupid reason (doing it the old-fashion way)
+colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
+colnames(validate)[9]  <- "cancer.classhead.and.neck"
+colnames(validate)[12] <- "cancer.classneural.crest"
+colnames(validate)[13] <- "cancer.classsoft.tissue"
+colnames(validate)[14] <- "cancer.classsolic..urologic"
+colnames(validate)[15] <- "cancer.classsolid..core.GI"
+colnames(validate)[16] <- "cancer.classsolid..endocrine"
+colnames(validate)[17] <- "cancer.classsolid..gynecologic"
+# which(colnames(validate) == "cancer.classneural crest")
+RF_preds  <- getPredRFModel(RF_model, validate)
+# RF_preds  <- getPredRFModel(RF_model, validate[,chosenCols])
 
 # -- Computing MSE
 cat("MSE for EN:",getRMSE(validate[,'Y'], lin_preds),"\n")
 cat("MSE for RF:",getRMSE(validate[,'Y'], RF_preds))
 
 # -- Multiple values for RF hyperparameters
-number_tress    <- seq(50, 250, by = 50)
+number_trees    <- seq(50, 250, by = 50)
 #number_tress[1] <- 1
 
 # -- Multiple values for EN hyperparameters

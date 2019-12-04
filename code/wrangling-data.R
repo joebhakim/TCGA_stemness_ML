@@ -84,6 +84,7 @@ selected_genes <- Filter(function(x) x < thresh$`10%`, mutated_enough)
 maf_data_subset <- maf_data[c('TCGAlong.id',colnames(selected_genes))]
 colnames(maf_data_subset) <- paste0("gene",colnames(maf_data_subset))
 
+
 dat_all <- left_join(dat, maf_data_subset, by = c('TCGAlong.id'='geneTCGAlong.id'))
 
 # -- Last wrangled
@@ -94,6 +95,9 @@ dat_all <- dat_all %>%
 # -- Creating the design matrix
 design <- model.matrix(~., dat_all)
 
+# -- Used below
+ys <- design[,"Y"]
+
 design <- design %>%
   as_tibble() %>%
   mutate(genderMALE = factor(genderMALE),
@@ -103,10 +107,15 @@ design <- design %>%
   mutate_if(is.numeric, scale) %>%
   mutate(`(Intercept)`=1) %>%
   mutate_all(as.character) %>%
-  mutate_all(as.numeric)
+  mutate_all(as.numeric) %>%
+  mutate(Y = ys)
 
 
-
+# colnames(design) <- gsub(" ", "", colnames(design))
+# colnames(design) <- gsub("\\.", "", colnames(design))
+# colnames(design) <- gsub("_", "", colnames(design))
+# colnames(design) <- gsub(",", "", colnames(design))
+# colnames(design)
 
 # # -- Methylation probe ids
 # genes <- RNA_subset[,1]
