@@ -160,7 +160,7 @@ getRMSE <- function(observed, predicted)
 }
 
 ##
-assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T, verbose=T)
+assess_RF <- function(train, validate, number_trees, mDNAsi=T, raw=T, mutations=T, verbose=T)
 {
   # -- Matrix to save results
   resMat           <- matrix(NA, nrow=length(number_trees), ncol=3)
@@ -240,7 +240,7 @@ assess_RF <- function(number_trees, mDNAsi=T, raw=T, mutations=T, verbose=T)
 }
 
 ##
-assess_EN <- function(l1s, l2s, mDNAsi=T, raw=T, mutations=T, verbose=T)
+assess_EN <- function(train, validate, l1s, l2s, mDNAsi=T, raw=T, mutations=T, verbose=T)
 {
   # -- Matrix to save results
   resMat           <- cbind(as.matrix(expand.grid(l1s,l2s)), NA, NA)
