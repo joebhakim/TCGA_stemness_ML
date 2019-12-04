@@ -2,6 +2,7 @@ library(gelnet)
 library(dplyr)
 library(gdata)
 library(DT)
+library(ggplot2)
 
 
 load("data/data.pan.Rda")
@@ -94,5 +95,6 @@ SC <- data.frame(predict(PCA, t(X.tr)))
 mDNA_PCd = bind_rows(list(cancer=cancer, nonSC=nonSC, SC=SC), .id='source')
 
 #ggplot(b, aes(PC1, PC2)) + geom_point() + geom_point(data=c, aes(PC1, PC2, color='red'))
-ggplot(data=mDNA_PCd, aes(PC1, PC2, color=source)) + geom_point()
+ggplot(data=mDNA_PCd, aes(PC1, PC2, color=source)) + geom_point() + theme_classic()
+ggsave(filename="./figs/PCA_new.png", dpi=300)
 
