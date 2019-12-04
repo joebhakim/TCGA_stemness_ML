@@ -29,15 +29,6 @@ chosenCols              <- RF_model_AND_chosenCols$chosenCols # -- Why are we do
 # -- Computing predictions in the validation set
 lin_preds <- getPredLinReg(lin_model, validate)
 
-# -- Need to do this for some stupid reason (doing it the old-fashion way)
-colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
-colnames(validate)[9]  <- "cancer.classhead.and.neck"
-colnames(validate)[12] <- "cancer.classneural.crest"
-colnames(validate)[13] <- "cancer.classsoft.tissue"
-colnames(validate)[14] <- "cancer.classsolic..urologic"
-colnames(validate)[15] <- "cancer.classsolid..core.GI"
-colnames(validate)[16] <- "cancer.classsolid..endocrine"
-colnames(validate)[17] <- "cancer.classsolid..gynecologic"
 # which(colnames(validate) == "cancer.classneural crest")
 RF_preds  <- getPredRFModel(RF_model, validate)
 # RF_preds  <- getPredRFModel(RF_model, validate[,chosenCols])
