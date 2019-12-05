@@ -38,29 +38,69 @@ cat("MSE for EN:",getRMSE(validate[,'Y'], lin_preds),"\n")
 cat("MSE for RF:",getRMSE(validate[,'Y'], RF_preds))
 
 # -- Multiple values for RF hyperparameters
-number_trees    <- seq(50, 250, by = 50)
-#number_tress[1] <- 1
-
-# -- Iterating over mutiple values of ntree
-resRF <- assess_RF(number_trees, mDNAsi=T, raw=F, mutations=F) # -- When mutations=T it gives problems
-resRF$viz
-
+number_trees    <- seq(0, 250, by = 50)
+number_trees[1] <- 5
 # -- Multiple values for EN hyperparameters
-l1s <- seq(0, 6, by=0.1)
-l2s <- seq(0, 6, by=0.1)
+l1s <- seq(0, 2, by=0.1)
+l2s <- seq(0, 2, by=0.1)
 
-# -- Iterating over l1s and l2s
-resEN <- assess_EN(l1s, l2s, mDNAsi=T, raw=T, mutations=T)
-resEN$viz
+# -- Creating table for results
+mDNAsi.vec <- c(T, F)
+raw.vec    <- c(T, F)
+mut.vec    <- c(T, F)
+resMat <- expand.grid(mDNAsi.vec, raw.vec, mut.vec)
+colnames(resMat) <- c("mDNAsi", "raw", "mutations")
+resMat[,"MSE.EN"] <- NA
+resMat[,"MSE.RF"] <- NA
+resMat[,"MSE.NN"] <- NA
 
-resEN$resMat %>%
-  as_tibble() %>%
-  # filter(l1==5)
-  filter(validate.mse == min(validate.mse))
-  # filter(train.mse == min(train.mse))
-# T,T,T: 4.3   0.9      845.         911
-# T,T,F: 5.8   0.7      874.         914.
-# T,F,F: 1     0      945.         905.
+for(i in 1:nrow(resMat))
+{
+  # cat("Iter", i, "of", nrow(resMat), "\n")
+  
+  # # -- Random Forest part of the matrix
+  # cat(">> Random Forest\n")
+  # tmp_RF <- assess_RF(train, validate, number_trees, mDNAsi=resMat[i,"mDNAsi"], raw=resMat[i,"raw"], mutations=resMat[i,"mutations"], verbose=FALSE)$resMat
+  # best_mse <- tmp_RF %>%
+  #                   as_tibble() %>%
+  #                   filter(validate.mse == min(validate.mse)) %>%
+  #                   .$validate.mse
+  # best_hyper <- tmp_RF %>%
+  #                   as_tibble() %>%
+  #                   filter(validate.mse == min(validate.mse)) %>%
+  #                   .$trees
+  # resMat[i,"MSE.RF"] <- paste0(round(best_mse,2)," (",best_hyper,")")
+  
+  # -- Random Forest part of the matrix
+  cat(">> Elastic Net\n")
+  tmp_EN <- assess_EN(train, validate, l1s, l2s, mDNAsi=resMat[i,"mDNAsi"], raw=resMat[i,"raw"], mutations=resMat[i,"mutations"], verbose=F)$resMat
+  best_mse <- tmp_EN %>%
+                    as_tibble() %>%
+                    filter(validate.mse == min(validate.mse)) %>%
+                    .$validate.mse
+  best_hyper1 <- tmp_EN %>%
+                    as_tibble() %>%
+                    filter(validate.mse == min(validate.mse)) %>%
+                    .$l1
+  best_hyper2 <- tmp_EN %>%
+                    as_tibble() %>%
+                    filter(validate.mse == min(validate.mse)) %>%
+                    .$l2
+  resMat[i,"MSE.EN"] <- paste0(round(best_mse,2)," (",best_hyper1,",",best_hyper2,")")
+}
+resMat
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
