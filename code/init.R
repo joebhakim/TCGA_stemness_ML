@@ -5,12 +5,13 @@ library(gelnet)
 library(randomForestSRC)
 
 ##
-split_data <- function(dat, proportions)
+split_data <- function(dat, proportions, seed)
 {
   ### dat         : dataset to be split into train, validate, and test sets
   ### proportions : this should be vector with spliting proportions. 
   ###               Specifically, the first element corresponds to train proportion, the
   ###               second to validate proportion, and the last to test proportion
+  set.seed(seed)
   
   # -- Number of observations
   n <- nrow(dat)
@@ -179,36 +180,8 @@ assess_RF <- function(train, validate, number_trees, mDNAsi=T, raw=T, mutations=
 
     #  -- Fiting RF model
     tmp_model          <- getRFModel(dat=train, ntree=resMat[i,1], mDNAsi=mDNAsi, raw=raw, mutations=mutations)
-    # colnames(train)[8]  <- "cancer.classdevelopmental.GI"
-    # colnames(train)[9]  <- "cancer.classhead.and.neck"
-    # colnames(train)[12] <- "cancer.classneural.crest"
-    # colnames(train)[13] <- "cancer.classsoft.tissue"
-    # colnames(train)[14] <- "cancer.classsolic..urologic"
-    # colnames(train)[15] <- "cancer.classsolid..core.GI"
-    # colnames(train)[16] <- "cancer.classsolid..endocrine"
-    # colnames(train)[17] <- "cancer.classsolid..gynecologic"
-    # 
-    # colnames(validate)[8]  <- "cancer.classdevelopmental.GI"
-    # colnames(validate)[9]  <- "cancer.classhead.and.neck"
-    # colnames(validate)[12] <- "cancer.classneural.crest"
-    # colnames(validate)[13] <- "cancer.classsoft.tissue"
-    # colnames(validate)[14] <- "cancer.classsolic..urologic"
-    # colnames(validate)[15] <- "cancer.classsolid..core.GI"
-    # colnames(validate)[16] <- "cancer.classsolid..endocrine"
-    # colnames(validate)[17] <- "cancer.classsolid..gynecologic"
-    
-    # colnames(train)[227]    <- "cg26395331.1"
-    # colnames(validate)[227] <- "cg26395331.1"
-    
-    # sum(colnames(train) %in% rownames(tmp_model$rfFit$importance))
-    # ncol(train)
-    # ncol(validate)
-    
-    which(colnames(train) == "cg26395331")
     
     # # -- Predictions in the train/validate set
-    # tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train[, tmp_model$chosenCols])
-    # tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate[, tmp_model$chosenCols])
     tmp_preds_train    <- getPredRFModel(tmp_model$rfFit, dat=train)
     tmp_preds_validate <- getPredRFModel(tmp_model$rfFit, dat=validate)
     
@@ -225,7 +198,7 @@ assess_RF <- function(train, validate, number_trees, mDNAsi=T, raw=T, mutations=
     geom_line(size=0.80) + 
     geom_point(size=3, alpha=0.90) +
     geom_point(size=3, pch=1, color="black") +
-    ylab("MSE") +
+    ylab("RMSE") +
     xlab("# of trees") +
     scale_color_manual(name="",
                        values = c("black", "red3"),
@@ -274,7 +247,7 @@ assess_EN <- function(train, validate, l1s, l2s, mDNAsi=T, raw=T, mutations=T, v
     ungroup() %>%
     ggplot(aes(l1, l2, fill=mse)) +
     geom_tile(color="black",size=0.50) +
-    scale_fill_gradient2(name="MSE",
+    scale_fill_gradient2(name="RMSE",
                          low="red", high="black", mid="white", midpoint = middle) +
     facet_wrap(~set) +
     theme_bw() +

@@ -98,8 +98,88 @@ dat %>%
         legend.text = element_text(face="bold", color="black"),
         legend.title = element_text(face="bold", color="black"))
 
+##
+dat %>%
+  filter(censor.indicator == 0) %>%
+  group_by(gender) %>%
+  summarize(meana = (mean(age, na.rm=T)),
+            sda   = sqrt(var(age, na.rm=T)/n()),
+            sviation = sd(age, na.rm=T)) %>%
+  ungroup() %>%
+  mutate(lower = meana - 2 * sda,
+         upper = meana + 2 * sda,
+         meana = meana)
+
+dat %>%
+  filter(censor.indicator == 0) %>%
+  group_by(cancer.type) %>%
+  summarize(n=n()) %>%
+  ungroup() %>%
+  arrange(n)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dat %>%
+  filter(censor.indicator == 0) %>%
+  filter(cancer.type %in% c("DLBC", "THYM", "UVM")) %>%
+  group_by(cancer.type, gender) %>%
+  summarize(mean = mean(age),
+            n=n()) %>%
+  ungroup() %>%
+  View()
+  summarize(cor = cor(mDNAsi, Y, method ="spearman"),
+            n=n()) %>%
+  ungroup() %>%
+  filter(n>2) %>%
+  # filter(cancer.type == "ESCA") %>%
+  arrange(desc(abs(cor)), desc(abs(n)))
+
+
+dat %>%
+  filter(cancer.type == "LGG") %>%
+  ggplot(aes(mDNAsi, Y, color=gender)) +
+  geom_point()
+ 
+
+
+
+
 # -- Age distribution by sex
 dat %>%
+  filter(censor.indicator == 0) %>%
+  group_by(gender) %>%
+  summarize(mean = mean(age, na.rm=T),
+            se = sqrt(var(age,na.rm=T)/n())) %>%
+  ungroup() %>%
+  mutate(lower = mean-2*se,
+         upper = mean+2*se)
   ggplot(aes(age)) +
   geom_density(fill="black", alpha=0.80, size=1) +
   facet_wrap(~gender) +
